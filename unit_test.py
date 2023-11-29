@@ -58,6 +58,13 @@ def test_o_add():
         ha=hp_number(str(a))
         hb=hp_number(str(b))
         assert  str(ha+hb)==str(a+b), f'{a=} {b=} {ha=} {hb=}'
+def test_o_pow():
+    for i in range(ttime//100):
+        a=random.randint(-100,100)
+        b=random.randint(0,100)
+        ha=hp_number(str(a))
+        hb=hp_number(str(b))
+        assert str(ha**hb)==str(a**b)
 
 def test_o_compare():
     for i in range(ttime):

@@ -48,7 +48,7 @@ class hp_number_base(object):
         return result
     def __repr__(self):
         return self.to_string()
-    # digit_len为压位高精长度
+    # digit_len为压位高精长度，目前仍存在未知Bug
     def __init__(self,num='0',digit_len=1):
         self.digit_len=digit_len
         self.data=[]
@@ -346,17 +346,17 @@ class hp_number(hp_number_base):
         return self.copy().div(num)
     def __ne__(self,num):
         if type(num)!=hp_number:
-            num=hp_number(self,self.digit_len)
+            num=hp_number(num,self.digit_len)
         return not self==num
     def __ge__(self,num):
         if type(num)!=hp_number:
-            num=hp_number(self,self.digit_len)
+            num=hp_number(num,self.digit_len)
         if self.sign==num.sign:
             return self.abs_greater_equal(num) if self.sign else self.abs_less_equal(num)
         return self.sign
     def __le__(self,num):
         if type(num)!=hp_number:
-            num=hp_number(self,self.digit_len)
+            num=hp_number(num,self.digit_len)
         if self.sign==num.sign:
             return self.abs_less_equal(num) if self.sign else self.abs_greater_equal(num)
         return not self.sign
@@ -379,6 +379,7 @@ class hp_number(hp_number_base):
             raise ValueError
         a,n=self.copy(),num.copy()
         ans=hp_number(1,self.digit_len)
+        print(f'{a=} {n=} {(n!=0)=}')
         while n!=0:
             if n.data[0]&1:
                 ans.mul(a)
