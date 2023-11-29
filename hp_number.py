@@ -364,7 +364,13 @@ class hp_number(hp_number_base):
         return self>=num and self!=num
     def __lt__(self,num):
         return self<=num and self!=num
-
-        
+    def __lshift__(self,k):
+        if type(k)!=int:
+            k=int(str(k))
+        self.left_shift(k)      
+    def __rshift__(self,k):
+        if type(k)!=int:
+            k=int(str(k))
+        self.right_shift(k)      
         
     
