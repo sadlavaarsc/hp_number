@@ -325,7 +325,7 @@ class hp_number(hp_number_base):
     # 这个函数作用保护self进行运算
     def __safe_operator__(self,num,func):
         if type(num)!=hp_number:
-            num=hp_number(num)
+            num=hp_number(num,self.digit_len)
         t1=self.copy()
         func(num)
         t2=self.copy()
@@ -342,5 +342,29 @@ class hp_number(hp_number_base):
         return self.__safe_operator__(num,self.div)
     def __mod__(self,num):
         if type(num)!=hp_number:
-            num=hp_number(num)
+            num=hp_number(num,self.digit_len)
         return self.copy().div(num)
+    def __ne__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(self,self.digit_len)
+        return not self==num
+    def __ge__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(self,self.digit_len)
+        if self.sign==num.sign:
+            return self.abs_greater_equal(num) if self.sign else self.abs_less_equal(num)
+        return self.sign
+    def __le__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(self,self.digit_len)
+        if self.sign==num.sign:
+            return self.abs_less_equal(num) if self.sign else self.abs_greater_equal(num)
+        return not self.sign
+    def __gt__(self,num):
+        return self>=num and self!=num
+    def __lt__(self,num):
+        return self<=num and self!=num
+
+        
+        
+    
