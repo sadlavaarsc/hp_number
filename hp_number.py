@@ -313,3 +313,32 @@ class hp_number(hp_number_base):
                 num.abs_sub(result)
                 result=num
         return result
+    # 接下来重载一系列运算符，方便使用以及后续构造pow函数
+    def __add__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(num)
+        t=self.copy()
+        t.add(num)
+        return num
+    def __sub__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(num)
+        t=self.copy()
+        t.sub(num)
+        return t
+    def __mul__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(num)
+        t=self.copy()
+        t.mul(num)
+        return t
+    def __floordiv__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(num)
+        t=self.copy()
+        t.div(num)
+        return t
+    def __mod__(self,num):
+        if type(num)!=hp_number:
+            num=hp_number(num)
+        return self.copy().div(num)
