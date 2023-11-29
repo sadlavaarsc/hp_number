@@ -256,7 +256,9 @@ class hp_number(hp_number_base):
             self.clear()
             self.data.append(0)
             return t
-        # 先计算无符号的整除
+        # 除0检验
+        if num.to_string()=='0':
+            raise ZeroDivisionError
         t1,t2=num.copy(),self.copy()
         result=hp_number_base('0',self.digit_len)
         result.data=[0]*len(self.data)
@@ -293,7 +295,7 @@ class hp_number(hp_number_base):
         t2.sign= self.sign
         self.sign=not (self.sign^num.sign)
         return t2
-    # 结果更符合python特点的除法，能够处理不同符号
+    # 结果符合python特点的除法，能够处理不同符号
     def div(self,num):
         if self.sign==num.sign:
             return self.raw_div(num)
@@ -303,7 +305,6 @@ class hp_number(hp_number_base):
         zero=hp_number_base('0',self.digit_len)
         # 往x轴负方向修正
         if not result==zero:
-            #print(f'{result.digit_len=} {zero.digit_len=} {result=} {zero=} {result==zero}')
             self.sub(one)
             # 这个正那另一个一定负数
             if result.sign==True:
