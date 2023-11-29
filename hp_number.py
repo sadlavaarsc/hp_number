@@ -36,6 +36,8 @@ class hp_number_base(object):
         self.data.reverse()
 
     def to_string(self):
+        self.clear_zero()
+        self.format_zero()
         result=''
         if not self.sign and not (len(self.data)==1 and self.data[0]==0):
             result='-'
@@ -51,7 +53,7 @@ class hp_number_base(object):
         self.digit_len=digit_len
         self.data=[]
         self.sign=True#正负号，True则正，False则负
-        self.load_string(num)
+        self.load_string(str(num))
     
     # copy，效果是返回自己的拷贝
     def copy(self):
@@ -67,7 +69,11 @@ class hp_number_base(object):
                 self.data.pop()
             else:
                 break
-
+    # 处理-0
+    def format_zero(self):
+        if len(self.data)==1 and not self.sign and self.data[0]==0:
+            self.sign=True
+    
     # 进位，参数index控制从第几位开始进位
     def up_format(self,index=0):
         # 如果这一位触发进位
@@ -83,7 +89,7 @@ class hp_number_base(object):
         # 即使没有进位，不是最后一个就要尝试继续进位
         elif index<len(self.data)-1:
             self.up_format(index+1)
-    # 退位
+    # 退位，只能处理大减小
     def down_format(self,index=0):
         # 如果这一位触发退位
         if self.data[index]<0:
@@ -131,6 +137,10 @@ class hp_number_base(object):
             raise ValueError
         self.clear_zero()
         num.clear_zero()
+        # -0特判
+        self.format_zero()
+        num.format_zero()
+
         if self.sign!=num.sign or len(self.data)!=len(num.data):
             return False
         for i in range(len(self.data)-1,-1,-1):
@@ -155,18 +165,26 @@ class hp_number_base(object):
         self.up_format()
     
     def abs_sub(self,num):
-        if not self.same_digit_len(num):
+        t=self.copy()
+        if not t.same_digit_len(num):
             raise ValueError
         # 清空前导0并对齐位数
-        self.clear_zero()
+        t.clear_zero()
         num.clear_zero()
         #只有左操作数太短需要处理
-        if len(self.data)<len(num.data):
-            self.data+=[0]*(len(num.data)-len(self.data))
+        if len(t.data)<len(num.data):
+            t.data+=[0]*(len(num.data)-len(t.data))
+        flag=False
+        if t.abs_less_equal(num):
+            num,t=t,num
+            flag=True
         #各位相减，然后直接format
         for i in range(min(len(self.data),len(num.data))):
-            self.data[i]-=num.data[i]
-        self.down_format()
+            t.data[i]-=num.data[i]
+        t.down_format()
+        self.data=t.data
+        if flag:
+            self.sign=False
 
     # 数乘，原则上k位数应该是小于digit_len
     def nmul(self,k):
@@ -195,13 +213,22 @@ class hp_number(hp_number_base):
             self.abs_add(num)
         # 自己是正数，那就是减法
         elif self.sign:
+            if num.abs_less_equal(self):
+                self.sign=True
+            else:
+                self.sign=False
             self.abs_sub(num)
         elif num.sign:
-            num.abs_sub(num)
-            self=num
+            if num.abs_greater_equal(self):
+                self.sign=True
+            else:
+                self.sign=False
+            t=num.copy()
+            t.abs_sub(self)
+            self.data=t.data.copy()
     def sub(self,num):
         num.sign^=1
-        self.add()
+        self.add(num)
     # 乘法
     def mul(self,num):
         # 先进行绝对值运算
@@ -271,10 +298,17 @@ class hp_number(hp_number_base):
         if self.sign==num.sign:
             return self.raw_div(num)
         # 对不同符号进行处理，python的对负数的整除是更偏向x轴负方向的
-        result=self.raw_div(num)
+        result=self.raw_div(num).copy()
         one=hp_number_base('1',self.digit_len)
+        zero=hp_number_base('0',self.digit_len)
         # 往x轴负方向修正
-        if not result==hp_number_base('0',self.digit_len):
+        if not result==zero:
+            #print(f'{result.digit_len=} {zero.digit_len=} {result=} {zero=} {result==zero}')
             self.sub(one)
-            result.add(num)
+            # 这个正那另一个一定负数
+            if result.sign==True:
+                result.abs_sub(num)
+            else:
+                num.abs_sub(result)
+                result=num
         return result
