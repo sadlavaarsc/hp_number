@@ -266,3 +266,15 @@ class hp_number(hp_number_base):
         t2.sign= self.sign
         self.sign=not (self.sign^num.sign)
         return t2
+    # 结果更符合python特点的除法，能够处理不同符号
+    def div(self,num):
+        if self.sign==num.sign:
+            return self.raw_div(num)
+        # 对不同符号进行处理，python的对负数的整除是更偏向x轴负方向的
+        result=self.raw_div(num)
+        one=hp_number_base('1',self.digit_len)
+        # 往x轴负方向修正
+        if not result==hp_number_base('0',self.digit_len):
+            self.sub(one)
+            result.add(num)
+        return result
