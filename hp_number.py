@@ -165,24 +165,24 @@ class hp_number_base(object):
         self.up_format()
     
     def abs_sub(self,num):
-        t=self.copy()
-        if not t.same_digit_len(num):
+        t1,t2=self.copy(),num.copy()
+        if not t1.same_digit_len(t2):
             raise ValueError
         # 清空前导0并对齐位数
-        t.clear_zero()
-        num.clear_zero()
+        t1.clear_zero()
+        t2.clear_zero()
         #只有左操作数太短需要处理
-        if len(t.data)<len(num.data):
-            t.data+=[0]*(len(num.data)-len(t.data))
+        if len(t1.data)<len(t2.data):
+            t1.data+=[0]*(len(t2.data)-len(t1.data))
         flag=False
-        if t.abs_less_equal(num):
-            num,t=t,num
+        if t1.abs_less_equal(t2):
+            t1,t2=t2,t1
             flag=True
         #各位相减，然后直接format
-        for i in range(min(len(self.data),len(num.data))):
-            t.data[i]-=num.data[i]
-        t.down_format()
-        self.data=t.data
+        for i in range(min(len(t1.data),len(t2.data))):
+            t1.data[i]-=t2.data[i]
+        t1.down_format()
+        self.data=t1.data
         if flag:
             self.sign=False
 
@@ -206,6 +206,12 @@ class hp_number_base(object):
 # 实现业务逻辑的子类
 class hp_number(hp_number_base):
     # 实现完整的业务逻辑
+    # 重载copy以阻止各种基类子类冲突
+    def copy(self):
+        result=hp_number('0',self.digit_len)
+        result.data=self.data.copy()
+        result.sign=self.sign
+        return result
     # 支持各种复杂正负号的+-
     def add(self,num):
         #先判断符号，决定是正是负
@@ -227,8 +233,9 @@ class hp_number(hp_number_base):
             t.abs_sub(self)
             self.data=t.data.copy()
     def sub(self,num):
-        num.sign^=1
-        self.add(num)
+        t=num.copy()
+        t.sign^=1
+        self.add(t)
     # 乘法
     def mul(self,num):
         # 先进行绝对值运算
@@ -310,34 +317,29 @@ class hp_number(hp_number_base):
             if result.sign==True:
                 result.abs_sub(num)
             else:
-                num.abs_sub(result)
-                result=num
+                t=num.copy()
+                t.abs_sub(result)
+                result=t
         return result
     # 接下来重载一系列运算符，方便使用以及后续构造pow函数
+    # 这个函数作用保护self进行运算
+    def __safe_operator__(self,num,func):
+        if type(num)!=hp_number:
+            num=hp_number(num)
+        t1=self.copy()
+        func(num)
+        t2=self.copy()
+        self.data,self.sign=t1.data.copy(),t1.sign
+        return t2
+
     def __add__(self,num):
-        if type(num)!=hp_number:
-            num=hp_number(num)
-        t=self.copy()
-        t.add(num)
-        return num
+        return self.__safe_operator__(num,self.add)
     def __sub__(self,num):
-        if type(num)!=hp_number:
-            num=hp_number(num)
-        t=self.copy()
-        t.sub(num)
-        return t
+        return self.__safe_operator__(num,self.sub)
     def __mul__(self,num):
-        if type(num)!=hp_number:
-            num=hp_number(num)
-        t=self.copy()
-        t.mul(num)
-        return t
+        return self.__safe_operator__(num,self.mul)
     def __floordiv__(self,num):
-        if type(num)!=hp_number:
-            num=hp_number(num)
-        t=self.copy()
-        t.div(num)
-        return t
+        return self.__safe_operator__(num,self.div)
     def __mod__(self,num):
         if type(num)!=hp_number:
             num=hp_number(num)
