@@ -7,6 +7,9 @@ class hp_number_base(object):
     # 粒度检验
     def same_digit_len(self,num):
         return self.digit_len==num.digit_len
+    # 很常用的是否为0
+    def is_zero(self):
+        return len(self.data)==1 and self.data[0]==0
 
     # 基本的字符串转数字，数字转字符串
     def load_string(self,num:str):
@@ -27,29 +30,33 @@ class hp_number_base(object):
         if not num[0].isdigit():
             raise ValueError
         
-        #取剩下的部分
+        #取剩下的部分，这里选择按照这种划分顺序防止出现进位出现问题
+        num=num[::-1]
+        num_len=len(num)
         for i in range(0,len(num)//self.digit_len+1):
             try:
-                self.data.append(int(num[i*self.digit_len:(i+1)*self.digit_len]))
+                self.data.append(int(num[i*self.digit_len:(i+1)*self.digit_len][::-1]))
             except ValueError:
                 break
-        self.data.reverse()
+        
 
     def to_string(self):
         self.clear_zero()
         self.format_zero()
         result=''
-        if not self.sign and not (len(self.data)==1 and self.data[0]==0):
-            result='-'
         tmp=self.data.copy()
         tmp.reverse()
         for e in tmp:
-            result+=str(e)
-        return result
+            result+=str(e).zfill(self.digit_len)#补足空位的0，防止中间缺位
+        #最后输出结果还是得把前导0干掉
+        result=result.lstrip('0')
+        if len(result)==0:
+            result='0'
+        return '-'+result if not self.sign and not self.is_zero() else result
     def __repr__(self):
         return self.to_string()
     # digit_len为压位高精长度，目前仍存在未知Bug
-    def __init__(self,num='0',digit_len=1):
+    def __init__(self,num='0',digit_len=9):
         self.digit_len=digit_len
         self.data=[]
         self.sign=True#正负号，True则正，False则负
@@ -161,6 +168,7 @@ class hp_number_base(object):
             self.data+=[0]*(len(num.data)-len(self.data))
         #各位相加，然后直接format
         for i in range(min(len(self.data),len(num.data))):
+            #print(f'{self.data[i]=} {num.data[i]=} {self.data[i]+num.data[i]=}')
             self.data[i]+=num.data[i]
         self.up_format()
     
