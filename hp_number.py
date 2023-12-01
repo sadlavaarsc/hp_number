@@ -379,18 +379,18 @@ class hp_number(hp_number_base):
         self.right_shift(k)
     # 现在写幂运算很容易了，这里选择快速幂式的实现
     def pow(self,num):
-        if num<0:
+        if not num.sign:
             raise ValueError
         a,n=self.copy(),num.copy()
         ans=hp_number(1,self.digit_len)
-        while n!=0:
+        while not n.is_zero():
             if n.data[0]&1:
                 ans.mul(a)
             a.mul(a)
             n=n//2
         if len(num.data)>=1 and (not num.data[0]&1):
             ans.sign=True#偶数指数则特地更改正负
-        self.data=ans.data
-        self.sign=ans.sign
+        self.sign,self.data=ans.sign,ans.data
+
     def __pow__(self,num):
         return self.__safe_operator__(num,self.pow)
