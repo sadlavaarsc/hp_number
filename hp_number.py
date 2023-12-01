@@ -295,10 +295,9 @@ class hp_number(hp_number_base):
         for i in range(len(self.data)-1,-1,-1):
             # 尝试二分寻找k使得k*num<=self
             l,r=0,10**(self.digit_len)
-            m,goal=(l+r)//2,0
-            t3=t1.copy()
+            m,goal=(l+r)>>1,0
             while l<=r:
-                m=(l+r)//2
+                m=(l+r)>>1
                 t3=t1.copy()
                 t3.nmul(m)
                 t3.left_shift(i)

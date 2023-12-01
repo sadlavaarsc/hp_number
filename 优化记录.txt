@@ -1,0 +1,33 @@
+未优化
+test_io test start
+10000 tests completed
+wrapper cost 0.015999555587768555s
+test_add test start
+10000 tests completed
+wrapper cost 0.05099987983703613s
+test_mul test start
+10000 tests completed
+wrapper cost 0.06488633155822754s
+test_div test start
+10000 tests completed
+wrapper cost 0.40379810333251953s
+test_pow test start
+100000 tests completed
+wrapper cost 48.52860140800476s
+
+优化后（数量级翻10倍测试）
+test_io test start
+100000 tests completed
+wrapper cost 0.15301966667175293s
+test_add test start
+100000 tests completed
+wrapper cost 0.5301597118377686s
+test_mul test start
+100000 tests completed
+wrapper cost 0.6506071090698242s
+test_div test start
+100000 tests completed
+wrapper cost 3.886826753616333s
+test_pow test start
+1000000 tests completed
+wrapper cost 25.04958963394165s
