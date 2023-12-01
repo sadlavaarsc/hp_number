@@ -222,7 +222,7 @@ class hp_number(hp_number_base):
     def mul2(self):
         #各位相加，然后直接format
         for i in range(len(self.data)):
-            self.data[i]*=2
+            self.data[i]<<=2
         self.up_format()
     # 除会稍微麻烦一点，这里实现了一个类似退位的操作
     def div2(self):
@@ -253,7 +253,7 @@ class hp_number(hp_number_base):
                 self.sign=False
             t=num.copy()
             t.abs_sub(self)
-            self.data=t.data.copy()
+            self.data=t.data
     def sub(self,num):
         t=num.copy()
         t.sign^=1

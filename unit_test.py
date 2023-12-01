@@ -1,8 +1,10 @@
+import sys
 from hp_number import *
 import pytest
 import random
 
 ttime=10000
+
 
 def test_division():
     for i in range(ttime):
