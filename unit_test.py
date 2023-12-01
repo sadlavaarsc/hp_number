@@ -16,6 +16,12 @@ def test_division():
         hb=hp_number(str(b))
         #$print(a,b)     
         assert str(ha.div(hb))==str(a%b) and str(ha)==str(a//b), f'{a=} {b=} {ha=} {hb=}'
+def test_div2():
+    for i in range(ttime):
+        a=random.randint(-10000,10000)
+        ha=hp_number(str(a))
+        ha.div2()
+        assert str(ha)==str(a//2),f'{a=} {ha=}'
 
 def test_abs_sub():
     for i in range(ttime):

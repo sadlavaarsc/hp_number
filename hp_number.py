@@ -227,12 +227,17 @@ class hp_number(hp_number_base):
     # 除会稍微麻烦一点，这里实现了一个类似退位的操作
     def div2(self):
         digit_limit=10**(self.digit_len)
+        #这个是正数
         # 把所有奇数都进行退位
         for i in range(len(self.data)-1,0,-1):
             if self.data[i]&1:
                 self.data[i-1]+=digit_limit
-            self.data[i]>>=2
-        self.data[0]>>=2
+            self.data[i]>>=1
+        if not self.sign and self.data[0]&1:
+            self.data[0]>>=1
+            self.data[0]+=1
+        else:
+            self.data[0]>>=1 
 
     # 支持各种复杂正负号的+-
     def add(self,num):
