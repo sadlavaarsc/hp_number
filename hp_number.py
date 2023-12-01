@@ -20,12 +20,12 @@ class hp_number_base(object):
             return
         #符号判断，连用两个符号如++ --被认为是非法的
         if not num[0].isdigit():
+            if len(num)==1:
+                raise ValueError
             if num[0]=='+':
                 self.sign=True
             if num[0]=='-':
                 self.sign=False
-            if len(num)==1:
-                raise ValueError
             num=num[1:]
         if not num[0].isdigit():
             raise ValueError
@@ -43,13 +43,10 @@ class hp_number_base(object):
     def to_string(self):
         self.clear_zero()
         self.format_zero()
-        result=''
         tmp=self.data.copy()
         tmp.reverse()
-        for e in tmp:
-            result+=str(e).zfill(self.digit_len)#补足空位的0，防止中间缺位
-        #最后输出结果还是得把前导0干掉
-        result=result.lstrip('0')
+        # 拼接并干掉前导0
+        result=(''.join([str(e).zfill(self.digit_len) for e in tmp])).lstrip('0')
         if len(result)==0:
             result='0'
         return '-'+result if not self.sign and not self.is_zero() else result
@@ -83,10 +80,11 @@ class hp_number_base(object):
     
     # 进位，参数index控制从第几位开始进位
     def up_format(self,index=0):
+        digit_limit=10**(self.digit_len)
         # 如果这一位触发进位
-        if self.data[index]>=10**(self.digit_len):
-            cnum=self.data[index]//(10**(self.digit_len))
-            self.data[index]%=10**(self.digit_len)
+        if self.data[index]>=digit_limit:
+            cnum=self.data[index]//digit_limit
+            self.data[index]%=digit_limit
             if index==len(self.data)-1:
                 self.data.append(cnum)
             else:
@@ -98,13 +96,14 @@ class hp_number_base(object):
             self.up_format(index+1)
     # 退位，只能处理大减小
     def down_format(self,index=0):
+        digit_limit=10**(self.digit_len)
         # 如果这一位触发退位
         if self.data[index]<0:
             if index==len(self.data)-1:
                 self.data[index]*=-1
                 self.sign^=True
             else:
-                self.data[index]+=10**(self.digit_len)
+                self.data[index]+=digit_limit
                 self.data[index+1]-=1
                 # 触发了退位则一定要尝试退位下一位
                 self.down_format(index+1)
@@ -165,10 +164,9 @@ class hp_number_base(object):
         num.clear_zero()
         #只有左操作数太短需要处理
         if len(self.data)<len(num.data):
-            self.data+=[0]*(len(num.data)-len(self.data))
+            self.data.extend([0]*(len(num.data)-len(self.data)))
         #各位相加，然后直接format
         for i in range(min(len(self.data),len(num.data))):
-            #print(f'{self.data[i]=} {num.data[i]=} {self.data[i]+num.data[i]=}')
             self.data[i]+=num.data[i]
         self.up_format()
     
@@ -181,7 +179,7 @@ class hp_number_base(object):
         t2.clear_zero()
         #只有左操作数太短需要处理
         if len(t1.data)<len(t2.data):
-            t1.data+=[0]*(len(t2.data)-len(t1.data))
+            t1.data.extend([0]*(len(t2.data)-len(t1.data)))
         flag=False
         if t1.abs_less_equal(t2):
             t1,t2=t2,t1
@@ -272,7 +270,7 @@ class hp_number(hp_number_base):
             self.data.append(0)
             return t
         # 除0检验
-        if num.to_string()=='0':
+        if num.is_zero():
             raise ZeroDivisionError
         t1,t2=num.copy(),self.copy()
         result=hp_number_base('0',self.digit_len)
@@ -316,11 +314,9 @@ class hp_number(hp_number_base):
             return self.raw_div(num)
         # 对不同符号进行处理，python的对负数的整除是更偏向x轴负方向的
         result=self.raw_div(num).copy()
-        one=hp_number_base('1',self.digit_len)
-        zero=hp_number_base('0',self.digit_len)
         # 往x轴负方向修正
-        if not result==zero:
-            self.sub(one)
+        if not result.is_zero():
+            self.sub(hp_number_base('1',self.digit_len))
             # 这个正那另一个一定负数
             if result.sign==True:
                 result.abs_sub(num)
