@@ -193,6 +193,7 @@ class hp_number_base(object):
             self.sign=False
 
     # 数乘，原则上k位数应该是小于digit_len
+    # k>=1
     def nmul(self,k):
         if k<0:
             self.sign^=1
@@ -207,7 +208,6 @@ class hp_number_base(object):
     #右移
     def right_shift(self,k):
         del self.data[0:k]
-    
 
 # 实现业务逻辑的子类
 class hp_number(hp_number_base):
@@ -218,6 +218,22 @@ class hp_number(hp_number_base):
         result.data=self.data.copy()
         result.sign=self.sign
         return result
+    # 用于快速计算的*2和//2
+    def mul2(self):
+        #各位相加，然后直接format
+        for i in range(len(self.data)):
+            self.data[i]*=2
+        self.up_format()
+    # 除会稍微麻烦一点，这里实现了一个类似退位的操作
+    def div2(self):
+        digit_limit=10**(self.digit_len)
+        # 把所有奇数都进行退位
+        for i in range(len(self.data)-1,0,-1):
+            if self.data[i]&1:
+                self.data[i-1]+=digit_limit
+            self.data[i]>>=2
+        self.data[0]>>=2
+
     # 支持各种复杂正负号的+-
     def add(self,num):
         #先判断符号，决定是正是负
@@ -387,7 +403,7 @@ class hp_number(hp_number_base):
             if n.data[0]&1:
                 ans.mul(a)
             a.mul(a)
-            n=n//2
+            n.div2()
         if len(num.data)>=1 and (not num.data[0]&1):
             ans.sign=True#偶数指数则特地更改正负
         self.sign,self.data=ans.sign,ans.data
