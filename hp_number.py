@@ -387,7 +387,6 @@ class hp_number(hp_number_base):
             raise ValueError
         a,n=self.copy(),num.copy()
         ans=hp_number(1,self.digit_len)
-        print(f'{a=} {n=} {(n!=0)=}')
         while n!=0:
             if n.data[0]&1:
                 ans.mul(a)
