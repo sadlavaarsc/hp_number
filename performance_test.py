@@ -3,7 +3,6 @@ import time
 import random
 import sys
 
-sys.setrecursionlimit(1000000)
 
 #自动的多次测试装饰器
 def multi_test(test_time):

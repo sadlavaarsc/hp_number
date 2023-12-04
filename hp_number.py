@@ -53,7 +53,7 @@ class hp_number_base(object):
     def __repr__(self):
         return self.to_string()
     # digit_len为压位高精长度，目前仍存在未知Bug
-    def __init__(self,num='0',digit_len=9):
+    def __init__(self,num='0',digit_len=1):
         self.digit_len=digit_len
         self.data=[]
         self.sign=True#正负号，True则正，False则负
@@ -79,37 +79,43 @@ class hp_number_base(object):
             self.sign=True
     
     # 进位，参数index控制从第几位开始进位
+    # 这个循环和下一个循环看起来比较怪是因为这两个都是递归改过来的
     def up_format(self,index=0):
         digit_limit=10**(self.digit_len)
-        # 如果这一位触发进位
-        if self.data[index]>=digit_limit:
-            cnum=self.data[index]//digit_limit
-            self.data[index]%=digit_limit
-            if index==len(self.data)-1:
-                self.data.append(cnum)
-            else:
-                self.data[index+1]+=cnum
-            # 触发了进位则一定要尝试进位下一位
-            self.up_format(index+1)
-        # 即使没有进位，不是最后一个就要尝试继续进位
-        elif index<len(self.data)-1:
-            self.up_format(index+1)
+        for index in range(0,len(self.data)):
+            # 如果这一位触发进位
+            if self.data[index]>=digit_limit:
+                cnum=self.data[index]//digit_limit
+                self.data[index]%=digit_limit
+                if index==len(self.data)-1:
+                    self.data.append(cnum)
+                else:
+                    self.data[index+1]+=cnum
+                # 触发了进位则一定要尝试进位下一位
+                continue
+            # 即使没有进位，不是最后一个就要尝试继续进位
+            elif index<len(self.data)-1:
+                continue
+            break
     # 退位，只能处理大减小
-    def down_format(self,index=0):
+    def down_format(self):
         digit_limit=10**(self.digit_len)
         # 如果这一位触发退位
-        if self.data[index]<0:
-            if index==len(self.data)-1:
-                self.data[index]*=-1
-                self.sign^=True
-            else:
-                self.data[index]+=digit_limit
-                self.data[index+1]-=1
+        for index in range(0,len(self.data)):
+            if self.data[index]<0:
+                if index==len(self.data)-1:
+                    self.data[index]*=-1
+                    self.sign^=True
+                    break
+                else:
+                    self.data[index]+=digit_limit
+                    self.data[index+1]-=1
                 # 触发了退位则一定要尝试退位下一位
-                self.down_format(index+1)
+                    continue
         # 即使没有退位，不是最后一个就要尝试继续退位
-        elif index<len(self.data)-1:
-            self.down_format(index+1)
+            elif index<len(self.data)-1:
+                continue
+            break
     # 判断self是否大于等于、小于等于、等于num
     # 其中前两个只比较绝对值，为了避免反复互相调用
     def abs_greater_equal(self,num):
