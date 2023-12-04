@@ -9,6 +9,7 @@ class hp_number_base(object):
         return self.digit_len==num.digit_len
     # 很常用的是否为0
     def is_zero(self):
+        self.clear_zero()
         return len(self.data)==1 and self.data[0]==0
 
     # 基本的字符串转数字，数字转字符串
@@ -39,7 +40,6 @@ class hp_number_base(object):
             except ValueError:
                 break
         
-
     def to_string(self):
         self.clear_zero()
         self.format_zero()
@@ -53,7 +53,7 @@ class hp_number_base(object):
     def __repr__(self):
         return self.to_string()
     # digit_len为压位高精长度，目前仍存在未知Bug
-    def __init__(self,num='0',digit_len=9):
+    def __init__(self,num='0',digit_len=1):
         self.digit_len=digit_len
         self.data=[]
         self.sign=True#正负号，True则正，False则负
