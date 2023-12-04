@@ -78,9 +78,9 @@ class hp_number_base(object):
         if len(self.data)==1 and not self.sign and self.data[0]==0:
             self.sign=True
     
-    # 进位，参数index控制从第几位开始进位
+    # 进位
     # 这个循环和下一个循环看起来比较怪是因为这两个都是递归改过来的
-    def up_format(self,index=0):
+    def up_format(self):
         digit_limit=10**(self.digit_len)
         for index in range(0,len(self.data)):
             # 如果这一位触发进位
@@ -291,6 +291,8 @@ class hp_number(hp_number_base):
     # 这里负数除法问题参考python的处理
     # raw div是只能处理同号乘除的除法（绝对值除法）
     def raw_div(self,num):
+        if not self.same_digit_len(num):
+            raise ValueError
         # 特判
         if self.abs_less_equal(num) and not self==num:
             t=self.copy()
