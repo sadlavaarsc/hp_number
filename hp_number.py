@@ -53,7 +53,7 @@ class hp_number_base(object):
     def __repr__(self):
         return self.to_string()
     # digit_len为压位高精长度，目前仍存在未知Bug
-    def __init__(self,num='0',digit_len=1):
+    def __init__(self,num='0',digit_len=9):
         self.digit_len=digit_len
         self.data=[]
         self.sign=True#正负号，True则正，False则负
@@ -238,6 +238,7 @@ class hp_number(hp_number_base):
             self.data[0]+=1
         else:
             self.data[0]>>=1 
+        self.up_format()
 
     # 支持各种复杂正负号的+-
     def add(self,num):
@@ -392,7 +393,7 @@ class hp_number(hp_number_base):
     def __lshift__(self,k):
         if type(k)!=int:
             k=int(str(k))
-        self.left_shift(k)      
+        self.left_shift(k)
     def __rshift__(self,k):
         if type(k)!=int:
             k=int(str(k))

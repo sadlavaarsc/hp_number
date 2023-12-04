@@ -3,6 +3,7 @@ from hp_number import *
 import pytest
 import random
 
+sys.setrecursionlimit(1000000)
 ttime=10000
 
 

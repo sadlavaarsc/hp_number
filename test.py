@@ -1,12 +1,11 @@
 from hp_number import *
 
-a1=hp_number('932')
-b1=hp_number('318')
-a2=hp_number('-932')
-b2=hp_number('318')
+import sys
 
-print(a1)
+sys.setrecursionlimit(1000000)
+a1=hp_number('2')
+
 #a1.abs_add(b1)
-print(a1*b1)
+print(a1**1000000)
 #print(22**10)
 #print(str(a1**b1)==str(22**1000))
